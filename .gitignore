@@ -1,0 +1,69 @@
+# ============================
+# Compiled & Build Output
+# ============================
+target/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Gradle (혹시 나중에 쓸 경우 대비)
+.gradle/
+build/
+
+# ============================
+# Spring Boot
+# ============================
+spring-shell.log
+*.log
+logs/
+
+# ============================
+# Environment & Secrets
+# ============================
+.env
+.env.*
+*.env
+application-local.yml
+application-local.yaml
+application-secret.yml
+application-secret.yaml
+application-prod.yml
+application-prod.yaml
+
+# ============================
+# IntelliJ IDEA
+# ============================
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# ============================
+# macOS
+# ============================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ============================
+# Windows
+# ============================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ============================
+# Maven Wrapper (로컬 캐시)
+# ============================
+.mvn/wrapper/maven-wrapper.jar
+
+# ============================
+# Test & Coverage
+# ============================
+*.exec
+/report/

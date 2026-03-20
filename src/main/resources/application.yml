@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: wooricard-settlement-service
+
+  batch:
+    job:
+      enabled: false  # 앱 시작 시 자동 실행 끄기
+    jdbc:
+      initialize-schema: always  # 메타 테이블 자동 생성
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/settlement_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    defer-datasource-initialization: true
+
+  security:
+    user:
+      name: card
+      password: card123
+
+  cloud:
+    config:
+      enabled: false  # Config Server 없이 로컬 실행 (TODO)
+
+server:
+  port: 8082
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  level:
+    com.card.payment: DEBUG
+
+# 승인/결제 서비스
+approval:
+  service:
+    url: http://192.168.0.23:8081
+
+# Swagger/OpenAPI 설정
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+    doc-expansion: none
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.1.80:8761/eureka/
+  instance:
+    prefer-ip-address: true
