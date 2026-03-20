@@ -23,7 +23,9 @@
 | Batch | Spring Batch |
 | ORM | Spring Data JPA / Hibernate |
 | Database | MySQL |
+| HTTP Client | OpenFeign |
 | Service Discovery | Spring Cloud Netflix Eureka Client |
+| Monitoring | Spring Actuator |
 | API Docs | SpringDoc OpenAPI (Swagger UI) |
 | Build | Gradle |
 
@@ -34,16 +36,20 @@
 ```
 src/main/java/com/wooricard/settlement/
 ├── batch/
-│   ├── ApprovalItemReader.java        # 승인 데이터 읽기 (페이징)
+│   ├── ApprovalItemReader.java        # 승인 데이터 읽기 (페이징 + 가맹점별 그룹핑)
 │   ├── SettlementItemProcessor.java   # 중복 확인 및 엔티티 변환
 │   ├── SettlementItemWriter.java      # DB 저장
 │   └── SettlementJobConfig.java       # 배치 Job 설정
 ├── client/
-│   └── ApprovalClientImpl.java        # 승인 서비스 RestTemplate 클라이언트
+│   └── ApprovalClient.java            # 승인 서비스 Feign 클라이언트
 ├── controller/
 │   ├── HealthController.java          # 헬스 체크
 │   └── SettlementController.java      # 정산 API
-├── dto/                               # 요청/응답 DTO
+├── dto/
+│   ├── ApprovalDto.java               # 승인 서비스 응답 DTO
+│   ├── ApprovalPageResponse.java      # 페이징 응답 래퍼 DTO
+│   ├── MerchantApprovalSummary.java   # 가맹점별 집계 DTO
+│   └── SettlementResponse.java        # 정산 조회 응답 DTO
 ├── entity/                            # JPA 엔티티 (Settlement, SettlementStatus)
 ├── repository/                        # JPA Repository
 └── scheduler/
@@ -54,7 +60,7 @@ src/main/java/com/wooricard/settlement/
 
 ## 설치 및 실행
 
-**사전 요구사항:** Java 17, MySQL 8.x, 승인 서비스(Approval Service)
+**사전 요구사항:** Java 17, MySQL 8.x, Eureka 서버, 승인 서비스(`wooricard-approval-service`)
 
 ```sql
 CREATE DATABASE settlement_db CHARACTER SET utf8mb4;
@@ -69,15 +75,13 @@ spring:
     username: [DB_USER]
     password: [DB_PASSWORD]
 
-approval:
-  service:
-    url: http://[APPROVAL_SERVICE_HOST]:[PORT]
-
 eureka:
   client:
     service-url:
       defaultZone: http://[EUREKA_HOST]:[PORT]/eureka/
 ```
+
+> 승인 서비스는 Eureka에 `wooricard-approval-service` 이름으로 등록되어 있어야 합니다.
 
 ```bash
 ./gradlew clean build
@@ -103,7 +107,7 @@ eureka:
 
 | 단계 | 클래스 | 설명 |
 |------|--------|------|
-| Read | `ApprovalItemReader` | 승인 서비스 API 100건씩 페이징 조회 후 가맹점별 그룹핑 |
+| Read | `ApprovalItemReader` | Feign으로 승인 서비스 API 페이징 조회, 가맹점별 그룹핑 |
 | Process | `SettlementItemProcessor` | COMPLETED 중복 스킵, FAILED 재처리 허용 |
 | Write | `SettlementItemWriter` | DB 저장 (청크 단위: 10건) |
 
