@@ -10,26 +10,16 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDate;
 
-/**
- * Spring Batch Job 설정
- *
- * Job 구조:
- * settlementJob
- * └── settlementStep
- *     ├── ApprovalItemReader    (가맹점별 승인 내역 읽기)
- *     ├── SettlementItemProcessor (Settlement 엔티티 변환)
- *     └── SettlementItemWriter  (settlement_db 저장)
- *
- * chunk(10) 의미:
- * 가맹점 10개씩 묶어서 처리 → 10개마다 트랜잭션 커밋
- */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
@@ -51,20 +41,23 @@ public class SettlementJobConfig {
     public Step settlementStep() {
         return new StepBuilder("settlementStep", jobRepository)
                 .<MerchantApprovalSummary, Settlement>chunk(10, transactionManager)
-                .reader(approvalItemReader(LocalDate.now().minusDays(1)))  // 기본값: 전일 정산
+                .reader(approvalItemReader(null))   // @StepScope라 런타임에 주입됨
                 .processor(settlementItemProcessor())
                 .writer(settlementItemWriter())
                 .build();
     }
 
-    // --- Reader / Processor / Writer Bean ---
-
     /**
-     * Job 실행 시 date 파라미터를 받아서 동적으로 Reader 생성
-     * Scheduler에서 JobParameters로 date를 넘겨줌
+     * @StepScope: Step 실행마다 새로 생성 → iterator 재초기화 보장
+     * JobParameters의 targetDate를 주입받아 동적으로 날짜 설정
      */
-    public ApprovalItemReader approvalItemReader(LocalDate targetDate) {
-        return new ApprovalItemReader(approvalClient, targetDate, 100);
+    @Bean
+    @StepScope
+    public ApprovalItemReader approvalItemReader(
+            @Value("#{jobParameters['targetDate']}") LocalDate targetDate) {
+        LocalDate date = (targetDate != null) ? targetDate : LocalDate.now().minusDays(1);
+        log.info("ApprovalItemReader 생성 - targetDate: {}", date);
+        return new ApprovalItemReader(approvalClient, date, 100);
     }
 
     @Bean

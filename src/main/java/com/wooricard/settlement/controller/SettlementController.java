@@ -31,8 +31,13 @@ public class SettlementController {
     @PostMapping("/trigger")
     public ResponseEntity<String> trigger(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        settlementScheduler.triggerSettlement(date);
-        return ResponseEntity.ok(date + " 정산 배치 실행 완료");
+        try {
+            settlementScheduler.triggerSettlement(date);
+            return ResponseEntity.ok(date + " 정산 배치 실행 완료");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(date + " 정산 배치 실행 실패: " + e.getMessage());
+        }
     }
 
     /**
