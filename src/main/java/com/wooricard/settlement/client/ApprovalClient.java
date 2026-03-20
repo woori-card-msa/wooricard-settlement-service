@@ -1,23 +1,25 @@
 package com.wooricard.settlement.client;
 
-import com.wooricard.settlement.dto.ApprovalDto;
+import com.wooricard.settlement.dto.ApprovalPageResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.List;
 
 /**
- * 승인/결제 서비스 클라이언트 인터페이스
+ * 승인/결제 서비스 Feign 클라이언트
+ * name = Eureka에 등록된 서비스 이름
  */
+@FeignClient(name = "wooricard-approval-service")
 public interface ApprovalClient {
 
-    /**
-     * 특정 날짜의 승인 완료 내역 조회 (페이지 단위)
-     * Batch ItemReader에서 청크 단위로 호출
-     *
-     * @param date     조회 대상 날짜
-     * @param page     페이지 번호 (0-based)
-     * @param size     페이지 크기
-     * @return 승인 내역 목록 (빈 리스트면 마지막 페이지)
-     */
-    List<ApprovalDto> getApprovedByDate(LocalDate date, int page, int size);
+    @GetMapping("/api/authorizations")
+    ApprovalPageResponse getApprovedByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam String status
+    );
 }
