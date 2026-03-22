@@ -60,6 +60,9 @@ dependencies {
 
     // Open feign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // .env
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 }
 
 dependencyManagement {
