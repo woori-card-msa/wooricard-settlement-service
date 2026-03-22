@@ -107,27 +107,12 @@ src/main/java/com/wooricard/settlement/
 
 **사전 요구사항:** Java 17, MySQL 8.x, Eureka 서버, 승인 서비스(`wooricard-approval-service`)
 
+### DB 생성
 ```sql
 CREATE DATABASE settlement_db CHARACTER SET utf8mb4;
 ```
 
-`application.yml`에서 환경에 맞게 수정:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://[DB_HOST]:3306/settlement_db
-    username: [DB_USER]
-    password: [DB_PASSWORD]
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://[EUREKA_HOST]:[PORT]/eureka/
-```
-
-> 승인 서비스는 Eureka에 `wooricard-approval-service` 이름으로 등록되어 있어야 합니다.
-
+### 실행 
 ```bash
 ./gradlew clean build
 ./gradlew bootRun
