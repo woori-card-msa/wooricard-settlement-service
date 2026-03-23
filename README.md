@@ -113,10 +113,6 @@ PENDING → IN_PROGRESS → COMPLETED
 
 `settlement_db`에는 Spring Batch가 자동 생성하는 **메타 테이블(BATCH_\*)** 과 서비스가 관리하는 **비즈니스 테이블(settlements)** 이 함께 존재합니다.
 
-
-### ERD
-
-
 ### 비즈니스 테이블
 
 | 테이블 | 역할 |
