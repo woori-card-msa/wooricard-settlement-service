@@ -4,6 +4,19 @@
 
 ---
 
+## 목차
+
+- [주요 기능](#주요-기능)
+- [기술 스택](#기술-스택)
+- [디렉토리 구조](#디렉토리-구조)
+- [환경 설정](#환경-설정)
+- [실행 방법](#실행-방법)
+- [설치 및 실행](#설치-및-실행)
+- [API 명세](#api-명세)
+- [배치 처리 흐름](#배치-처리-흐름)
+- [DB 구조 (MySQL)](#db-구조-mysql)
+---
+
 ## 주요 기능
 
 - 매일 오전 1시 전일 승인 데이터 자동 정산 (Spring Scheduler)
@@ -147,10 +160,44 @@ CREATE DATABASE settlement_db CHARACTER SET utf8mb4;
 
 ---
 
-## 주요 설정
+## DB 구조 (MySQL)
 
-| 키 | 기본값 | 설명 |
-|----|--------|------|
-| `server.port` | `8082` | 서버 포트 |
-| `spring.batch.job.enabled` | `false` | 시작 시 자동 배치 실행 비활성화 |
-| `spring.jpa.hibernate.ddl-auto` | `create-drop` | 스키마 자동 생성 **(개발용)** |
+`settlement_db`에는 Spring Batch가 자동 생성하는 **메타 테이블(BATCH_\*)** 과 서비스가 관리하는 **비즈니스 테이블(settlements)** 이 함께 존재합니다.
+
+### 비즈니스 테이블
+
+| 테이블 | 역할 |
+|--------|------|
+| `settlements` | 가맹점별 일별 정산 결과 저장. 배치 Job이 승인 서비스로부터 수집한 데이터를 집계하여 기록 |
+
+> **Unique Constraint:** `uk_settlement_date(settlement_date, merchant_id)` — 동일 날짜·가맹점 중복 정산을 DB 레벨에서 방지
+
+### Spring Batch 메타 테이블
+
+Spring Batch가 **Job 실행 이력 및 재시작 지원**을 위해 자동으로 생성·관리하는 테이블입니다. 애플리케이션 코드에서 직접 읽거나 쓰지 않습니다.
+
+| 테이블 | 역할 |
+|--------|------|
+| `BATCH_JOB_INSTANCE` | Job의 논리적 실행 단위. Job 이름 + 파라미터 조합마다 1개 행 생성 |
+| `BATCH_JOB_EXECUTION` | 실제 Job 실행 기록 (시작/종료 시각, 성공·실패 여부). 재시도 시 같은 Instance에 여러 Execution이 생길 수 있음 |
+| `BATCH_JOB_EXECUTION_PARAMS` | Job 실행 시 전달된 파라미터 저장 (예: `targetDate=2025-03-20`) |
+| `BATCH_JOB_EXECUTION_CONTEXT` | Job 실행 중 체크포인트 데이터. 실패 후 재시작 시 중단 지점 복구에 사용 |
+| `BATCH_STEP_EXECUTION` | Step(settlementStep)별 실행 기록 (read/write/skip/commit 건수 등) |
+| `BATCH_STEP_EXECUTION_CONTEXT` | Step 실행 중 체크포인트 데이터 |
+
+### Batch 메타 테이블과 settlements 간의 관계
+
+두 테이블 그룹 사이에 **직접적인 FK는 없으며**, `BATCH_JOB_EXECUTION_PARAMS`의 `targetDate` 파라미터와 `settlements.settlement_date`가 **논리적으로** 연결됩니다.
+
+| 확인 항목 | 조회 위치 |
+|-----------|-----------|
+| 배치 실행 성공 여부 | `BATCH_JOB_EXECUTION.STATUS = 'COMPLETED'` |
+| 정산 데이터 존재 여부 | `settlements.status = 'COMPLETED'` |
+| 특정 날짜 배치 재실행 여부 | `BATCH_JOB_EXECUTION_PARAMS`에서 동일 `targetDate` Execution 수 확인 |
+
+> 배치 Job이 정상 완료되었더라도 개별 가맹점 처리 실패 시 해당 `settlements` 행은 `FAILED` 상태로 남을 수 있습니다.
+
+### ERD
+
+<!-- ERD 이미지 삽입 예정 -->
+
