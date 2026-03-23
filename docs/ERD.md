@@ -5,14 +5,9 @@
 
 ---
 
-## ERD 이미지
-
-<!-- ERD 이미지 삽입 예정 -->
-
----
-
 ## 목차
 
+- [ERD](#ERD)
 - [비즈니스 테이블](#비즈니스-테이블)
   - [settlements](#settlements)
 - [Spring Batch 메타 테이블](#spring-batch-메타-테이블)
@@ -23,6 +18,12 @@
   - [BATCH_STEP_EXECUTION](#batch_step_execution)
   - [BATCH_STEP_EXECUTION_CONTEXT](#batch_step_execution_context)
 - [테이블 간 관계](#테이블-간-관계)
+
+---
+
+## ERD
+
+<img width="4461" height="8192" alt="Untitled diagram-2026-03-23-101247" src="https://github.com/user-attachments/assets/7bb0e7e2-3ab8-40e8-9589-431ac5702646" />
 
 ---
 
