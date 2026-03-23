@@ -372,6 +372,7 @@ settlementJob
 
 ### 5.2 전체 흐름도
 
+![spring-batch-flow-light](https://github.com/user-attachments/assets/f20ed469-6ef7-4851-ad96-1c8f17415e7f)
 
 
 ---
