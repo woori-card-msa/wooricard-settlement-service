@@ -15,6 +15,7 @@
 - [환경 설정](#환경-설정)
 - [실행 방법](#실행-방법)
 - [설치 및 실행](#설치-및-실행)
+- [문서](#문서)
 
 ---
 
@@ -237,3 +238,12 @@ CREATE DATABASE settlement_db CHARACTER SET utf8mb4;
 ```
 
 서버 포트: **8082** / Swagger UI: `/swagger-ui.html`
+
+---
+
+## 문서
+
+| 문서 | 설명 |
+|------|------|
+| [docs/SPRING_BATCH.md](docs/SPRING_BATCH.md) | Spring Batch 개념 정리 (배치란 무엇인가, 아키텍처, 이 서비스의 흐름, FAQ) |
+| [docs/ERD.md](docs/ERD.md) | DB 테이블 상세 설명 (settlements, Spring Batch 메타 테이블) |
