@@ -23,7 +23,8 @@
 
 ## ERD
 
-<img width="6036" height="8192" alt="Untitled diagram-2026-03-23-104142" src="https://github.com/user-attachments/assets/e3d78ff3-e478-4ba9-b607-a83247aa3f18" />
+<img width="6036" height="8192" alt="Untitled diagram-2026-03-23-104621" src="https://github.com/user-attachments/assets/ad08663a-0166-4cf7-915e-f228573aaddf" />
+
 
 
 ---
