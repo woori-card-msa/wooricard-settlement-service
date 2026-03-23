@@ -49,36 +49,8 @@
 ## 배치 처리 흐름
 
 ### 전체 흐름
+<img width="4524" height="2605" alt="Untitled-2026-03-23-2153" src="https://github.com/user-attachments/assets/577114de-9f6d-4636-b553-dc0ef5abc8f9" />
 
-```
-[Scheduler / API]
-        │
-        │ targetDate (기본값: 전일)
-        ▼
-  settlementJob
-        │
-        ▼
-  settlementStep  ──────────────────────────────────────────────┐
-        │                                                        │
-  [Read]                                                         │
-  ApprovalItemReader                                             │
-  - 승인 서비스 API를 페이지 단위로 전체 조회 (pageSize: 100)        │
-  - APPROVED 상태 건만 수집                                       │
-  - merchantId 기준으로 그룹핑 → MerchantApprovalSummary 목록    │
-        │                                                        │
-  [Process] (건별)                                               │
-  SettlementItemProcessor                                        │
-  - 기존 정산 존재 여부 조회                                       │
-    ├─ COMPLETED → null 반환 (스킵)                              │
-    ├─ FAILED    → 기존 row 업데이트 (재처리)                     │
-    └─ 없음      → 신규 Settlement 엔티티 생성                    │
-        │                                                        │
-  [Write] (청크 단위: 10건)                                       │
-  SettlementItemWriter                                           │
-  - saveAll()로 청크 단위 bulk 저장                               │
-        │                                                        │
-        └────────────────────────────────────────────────────────┘
-```
 
 ### 단계별 설명
 
