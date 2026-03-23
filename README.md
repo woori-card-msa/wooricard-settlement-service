@@ -46,6 +46,32 @@
 
 ---
 
+## 서비스 아키텍처
+
+```
+wooricard-approval-service (:8081)
+    ↓ OpenFeign
+    GET /api/approvals?date={targetDate}&page={page}&size={size}&status=APPROVED                                                                                                    
+  wooricard-settlement-service (:8082)   ← 본 서비스
+    ↓ 가맹점별 승인 내역 그룹핑                                                                                                                                                     
+    ↓ 정산 데이터 생성 (Spring Batch)
+  settlement_db
+    └── settlements 테이블
+          ├── settlement_date
+          ├── merchant_id
+          ├── total_count
+          ├── total_amount
+          └── status (COMPLETED / FAILED)
+
+  wooricard-eureka (:8761)
+    ↑ 서비스 등록
+
+  wooricard-config-server (:8888)
+    ↑ 설정 관리 (DB 접속정보, 포트 등)
+```
+
+---
+
 ## 배치 처리 흐름
 
 ### 전체 흐름
